@@ -7,13 +7,13 @@
 }
 
 #bits_table {
-    font-size: 10pt;
+    font-size: 9pt;
     border: 1px solid black;
     border-collapse:collapse;
 }
 
 #bits_table th{
-    min-width: 18px;
+    min-width: 14px;
 }
 
 #bits_table .even_byte{

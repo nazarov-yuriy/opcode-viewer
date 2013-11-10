@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app>
+<html ng-app="customControl">
 <head>
     <title>Opcodes</title>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
@@ -18,10 +18,10 @@
     <select ng-model="instructions_signature" ng-options="key for (key, val) in instructions_class"></select>
     <br/>
 
-    <div ng-show="instructions_signature.args.length">
-    <label>Select argument:</label>
-    <select ng-model="instructions_args" ng-options="key for key in instructions_signature.args"></select>
-    <br/>
+    <div ng-show="instructions_signature.arg1.length">
+        <label>Select argument:</label>
+        <select ng-model="instructions_args" ng-options="key for key in instructions_signature.arg1"></select>
+        <br/>
     </div>
 </div>
 
@@ -39,8 +39,13 @@
         </tr>
         <tr ng-repeat-start="register in registers">
             <td class="border2" rowspan="2">{{register}}</td>
-            <td class="border2" rowspan="2"> <input ng-model="cpu[register]" class="reg_value"/></td>
-            <td ng-repeat="byte in bytes" colspan="8" class="border2 {{get_class(byte*8)}}">{{get_byte(register, byte)}}</td>
+            <td class="border2" rowspan="2">
+                <!-- <div hexeditable name="myWidget" ng-model="cpu[register]" strip-br="true" required></div> -->
+
+                <input hexeditable ng-model="cpu[register]" class="reg_value"/></td>
+            <td ng-repeat="byte in bytes" colspan="8" class="border2 {{get_class(byte*8)}}">{{get_byte(register,
+                byte)}}
+            </td>
         </tr>
         <tr ng-repeat-end>
             <th ng-repeat="bit in bits" class="{{get_class(bit)}}">{{get_bit(register, bit)}}</th>
