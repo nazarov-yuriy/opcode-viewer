@@ -1,0 +1,33 @@
+#instruction_selector {
+    background-color: green;
+}
+
+#instruction_description {
+    background-color: cornflowerblue;
+}
+
+#bits_table {
+    font-size: 10pt;
+    border: 1px solid black;
+    border-collapse:collapse;
+}
+
+#bits_table th{
+    min-width: 18px;
+}
+
+#bits_table .even_byte{
+    background-color: #afa;
+}
+
+#bits_table .odd_byte{
+    background-color: #aaf;
+}
+
+.border2 {
+    border-top-width: 2px;
+}
+
+.reg_value {
+    width: 120px;
+}

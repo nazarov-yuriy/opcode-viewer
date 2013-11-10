@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html ng-app>
+<head>
+    <title>Opcodes</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0/angular.min.js"></script>
+    <script src="data.js"></script>
+    <script src="main.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css"/>
+</head>
+<body ng-controller="CpuController">
+
+<div id="instruction_selector">
+    <label>Select instruction class:</label>
+    <select ng-model="instructions_class" ng-options="key for (key, val) in opcodes"></select>
+    <br/>
+
+    <label>Select instruction:</label>
+    <select ng-model="instructions_signature" ng-options="key for (key, val) in instructions_class"></select>
+    <br/>
+
+    <div ng-show="instructions_signature.args.length">
+    <label>Select argument:</label>
+    <select ng-model="instructions_args" ng-options="key for key in instructions_signature.args"></select>
+    <br/>
+    </div>
+</div>
+
+<div id="instruction_description">
+    <h4>{{instructions_signature.name}}</h4>
+    <button ng-click="run_cmd()" ng-init="count=0">Run</button>
+</div>
+
+<div>
+    <table id="bits_table" border="1">
+        <tr>
+            <th>name</th>
+            <th>value</th>
+            <th ng-repeat="bit in bits" class="{{get_class(bit)}}">{{bit}}</th>
+        </tr>
+        <tr ng-repeat-start="register in registers">
+            <td class="border2" rowspan="2">{{register}}</td>
+            <td class="border2" rowspan="2"> <input ng-model="cpu[register]" class="reg_value"/></td>
+            <td ng-repeat="byte in bytes" colspan="8" class="border2 {{get_class(byte*8)}}">{{get_byte(register, byte)}}</td>
+        </tr>
+        <tr ng-repeat-end>
+            <th ng-repeat="bit in bits" class="{{get_class(bit)}}">{{get_bit(register, bit)}}</th>
+        </tr>
+    </table>
+</div>
+
+
+</body>
+</html>
