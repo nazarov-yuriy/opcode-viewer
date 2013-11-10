@@ -23,7 +23,7 @@ angular.module('customControl', []).
                 // Write data to the model
                 function read() {
                     var val = element.val();
-                    ngModel.$setViewValue(parseInt(val, 16));
+                    ngModel.$setViewValue( parseInt(val, 16) || 0 );
                 }
             }
         };
@@ -31,12 +31,13 @@ angular.module('customControl', []).
 
 function CpuController($scope) {
     $scope.opcodes = opcodes;
-    $scope.instructions_class = opcodes[Object.keys(opcodes)[0]];
-    $scope.instructions_signature = $scope.instructions_class[Object.keys($scope.instructions_class)[0]];
+    $scope.eflags = eflags;
+    $scope.instructions_class = Object.keys(opcodes)[0];
+    $scope.instructions_signature = Object.keys($scope.opcodes[$scope.instructions_class])[0];
 
     $scope.run_cmd = function(){
-        if($scope.instructions_signature.key == 'INC'){
-            $scope.cpu[$scope.instructions_args]++;
+        if('execute' in $scope.opcodes[$scope.instructions_class][$scope.instructions_signature]){
+            $scope.opcodes[$scope.instructions_class][$scope.instructions_signature].execute($scope);
         }
     };
 
@@ -50,6 +51,9 @@ function CpuController($scope) {
     $scope.bytes = bytes;
     $scope.registers = gp_regs;
     $scope.cpu = cpu_init;
+    $scope.get_flag = function (bit) {
+        return ($scope.cpu['eflags'] >> bit) & 1;
+    };
     $scope.get_bit = function (name, bit) {
         return ($scope.cpu[name] >> bit) & 1;
     };

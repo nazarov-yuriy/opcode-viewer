@@ -11,16 +11,16 @@
 
 <div id="instruction_selector">
     <label>Select instruction class:</label>
-    <select ng-model="instructions_class" ng-options="key for (key, val) in opcodes"></select>
+    <select ng-model="instructions_class" ng-options="key as key for (key, value) in opcodes"></select>
     <br/>
 
     <label>Select instruction:</label>
-    <select ng-model="instructions_signature" ng-options="key for (key, val) in instructions_class"></select>
+    <select ng-model="instructions_signature" ng-options="key as key for (key, val) in opcodes[instructions_class]"></select>
     <br/>
 
-    <div ng-show="instructions_signature.arg1.length">
+    <div ng-show="opcodes[instructions_class][instructions_signature].arg1.length">
         <label>Select argument:</label>
-        <select ng-model="instructions_args" ng-options="key for key in instructions_signature.arg1"></select>
+        <select ng-model="instructions_args" ng-options="key for key in opcodes[instructions_class][instructions_signature].arg1"></select>
         <br/>
     </div>
 </div>
@@ -30,7 +30,9 @@
     <button ng-click="run_cmd()" ng-init="count=0">Run</button>
 </div>
 
-<div>
+<div style="display: table;">
+    <div style="display: table-row;">
+    <div style="display: table-cell;">
     <table id="bits_table" border="1">
         <tr>
             <th>name</th>
@@ -40,9 +42,8 @@
         <tr ng-repeat-start="register in registers">
             <td class="border2" rowspan="2">{{register}}</td>
             <td class="border2" rowspan="2">
-                <!-- <div hexeditable name="myWidget" ng-model="cpu[register]" strip-br="true" required></div> -->
-
-                <input hexeditable ng-model="cpu[register]" class="reg_value"/></td>
+                <input hexeditable ng-model="cpu[register]" class="reg_value"/>
+            </td>
             <td ng-repeat="byte in bytes" colspan="8" class="border2 {{get_class(byte*8)}}">{{get_byte(register,
                 byte)}}
             </td>
@@ -51,6 +52,16 @@
             <th ng-repeat="bit in bits" class="{{get_class(bit)}}">{{get_bit(register, bit)}}</th>
         </tr>
     </table>
+    </div>
+    <div style="display: table-cell;">
+    <table style="margin-left: 20px;">
+        <tr ng-repeat="(key,val) in eflags">
+            <td>{{key}} =</td>
+            <td>{{get_flag(val.pos)}}</td>
+        </tr>
+    </table>
+    </div>
+    </div>
 </div>
 
 

@@ -1,6 +1,67 @@
 /**
  * Created by firefish on 11/10/13.
  */
+var cf_flag = 1<<0;
+var pf_flag = 1<<2;
+var af_flag = 1<<4;
+var zf_flag = 1<<6;
+var sf_flag = 1<<7;
+var tf_flag = 1<<8;
+var if_flag = 1<<9;
+var df_flag = 1<<10;
+var of_flag = 1<<11;
+
+function set_flags($scope, prev_val, val, mask){
+    if(mask & zf_flag)
+        if(val == 0)
+            $scope.cpu['eflags'] |= zf_flag;
+        else
+            $scope.cpu['eflags'] &= ~zf_flag;
+
+    if(mask & cf_flag)
+        if( (val>>31)!=(prev_val>>31) )
+            $scope.cpu['eflags'] |= cf_flag;
+        else
+            $scope.cpu['eflags'] &= ~cf_flag;
+}
+
+function execute_inc($scope){
+    var prev_val = $scope.cpu[$scope.instructions_args];
+    $scope.cpu[$scope.instructions_args]++;
+    if($scope.cpu[$scope.instructions_args]>0xffffffff)
+        $scope.cpu[$scope.instructions_args] = 0;
+    set_flags($scope, prev_val, $scope.cpu[$scope.instructions_args], zf_flag|cf_flag);
+}
+
+function execute_dec($scope){
+    var prev_val = $scope.cpu[$scope.instructions_args];
+    $scope.cpu[$scope.instructions_args]--;
+    if($scope.cpu[$scope.instructions_args]<0)
+        $scope.cpu[$scope.instructions_args] = 0xffffffff;
+    set_flags($scope, prev_val, $scope.cpu[$scope.instructions_args], zf_flag|cf_flag);
+}
+
+function execute_aaa($scope){
+    var val = $scope.cpu['eax'];
+    var al = val & 0xff;
+    var ah = (val>>8) & 0xff;
+    var flags = $scope.cpu['eflags'];
+
+    if( ((val&0xf) > 9) || (flags&af_flag) ){
+        al+=6;
+        ah++;
+        al = al&0xf;
+        flags |= af_flag;
+        flags |= cf_flag;
+    }else{
+        al = al&0xf;
+        flags &= ~af_flag;
+        flags &= ~cf_flag;
+    }
+    $scope.cpu['eax'] = val&0xffff0000 | ah<<8 | al;
+    $scope.cpu['eflags'] = flags;
+}
+
 var gp_regs = [
     'eax',
     'ebx',
@@ -14,7 +75,8 @@ var gp_regs = [
 var opcodes = {
     '8086/8088': {
         'AAA': {
-            name: "ASCII Adjust After Addition"
+            name: "ASCII Adjust After Addition",
+            execute: execute_aaa
         },
         'AAD': {
             name: "ASCII Adjust AX Before Division"
@@ -71,7 +133,9 @@ var opcodes = {
             name: "Decimal adjust AL after subtraction"
         },
         'DEC': {
-            name: "Decrement by 1"
+            name: "Decrement by 1",
+            arg1: gp_regs,
+            execute: execute_dec
         },
         'DIV': {
             name: "Unsigned divide"
@@ -93,8 +157,8 @@ var opcodes = {
         },
         'INC': {
             name: "Increment by 1",
-            key:  'INC',
-            arg1: gp_regs
+            arg1: gp_regs,
+            execute: execute_inc
         },
         'INT': {
             name: "Call to interrupt"
@@ -273,3 +337,30 @@ var cpu_init = {
     'edi': 0x01234567,
     'esp': 0x01234567
 };
+
+var eflags = {
+    'cf' : {
+        pos : 0,
+        name : 'Carry flag'
+    },
+    'pf' : {
+        pos : 2,
+        name : 'Parity flag'
+    },
+    'af' : {
+        pos : 4,
+        name : 'Adjust flag'
+    },
+    'zf' : {
+        pos : 6,
+        name : 'Zero flag'
+    },
+    'sf' : {
+        pos : 7,
+        name : 'Sign flag'
+    },
+    'if' : {
+        pos : 9,
+        name : 'Interrupt enable flag'
+    }
+}
